@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+<title>Новая операция</title>
+{% endblock %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="row">
+        <div class="col-md-5 offset-md-3">
+            <h1 class="h3 mb-1">Новая операция</h1>
+            <p class="text-muted">Портфель: {{ portfolio.name }}</p>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    {{ field|as_crispy_field }}
+                {% endfor %}
+                <button class="w-100 btn btn-lg btn-primary mt-4" type="submit">
+                    Выполнить операцию
+                </button>
+            </form>
+            <a href="{% url 'dashboard:portfolio_detail' portfolio.pk %}"
+               class="btn btn-link mt-2">Назад к портфелю</a>
+        </div>
+    </div>
+{% endblock %}

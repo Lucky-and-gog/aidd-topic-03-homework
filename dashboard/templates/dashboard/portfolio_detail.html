@@ -1,0 +1,145 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+<title>{{ portfolio.name }}</title>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-0">{{ portfolio.name }}</h1>
+            <small class="text-muted">
+                Создан: {{ portfolio.created_at|date:"d.m.Y H:i" }}
+            </small>
+        </div>
+        <div>
+            <a href="{% url 'dashboard:transaction_create' portfolio.pk %}"
+               class="btn btn-primary">Добавить операцию</a>
+            <a href="{% url 'dashboard:portfolio_list' %}"
+               class="btn btn-outline-secondary">К списку</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Вложено (себестоимость)</div>
+                    <div class="h5 mb-0">{{ portfolio.invested_value|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Текущая стоимость</div>
+                    <div class="h5 mb-0">{{ portfolio.current_value|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Нереализованный P&amp;L</div>
+                    <div class="h5 mb-0 {% if portfolio.unrealized_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ portfolio.unrealized_pnl|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Итоговый P&amp;L</div>
+                    <div class="h5 mb-0 {% if portfolio.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ portfolio.total_pnl|floatformat:2 }}
+                        ({{ portfolio.total_pnl_percent|floatformat:2 }}%)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5">Позиции</h2>
+    {% if portfolio.positions.all %}
+        <div class="table-responsive mb-4">
+            <table class="table table-striped align-middle">
+                <thead>
+                <tr>
+                    <th>Тикер</th>
+                    <th>Название</th>
+                    <th class="text-end">Количество</th>
+                    <th class="text-end">Средняя цена</th>
+                    <th class="text-end">Текущая цена</th>
+                    <th class="text-end">Себестоимость</th>
+                    <th class="text-end">Текущая стоимость</th>
+                    <th class="text-end">P&amp;L</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for position in portfolio.positions.all %}
+                    <tr>
+                        <td>{{ position.share.ticker }}</td>
+                        <td>{{ position.share.name }}</td>
+                        <td class="text-end">{{ position.quantity|floatformat:6 }}</td>
+                        <td class="text-end">{{ position.average_price|floatformat:2 }}</td>
+                        <td class="text-end">{{ position.market_price|floatformat:2 }}</td>
+                        <td class="text-end">{{ position.cost_basis|floatformat:2 }}</td>
+                        <td class="text-end">{{ position.current_value|floatformat:2 }}</td>
+                        <td class="text-end {% if position.unrealized_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {{ position.unrealized_pnl|floatformat:2 }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">В портфеле пока нет позиций.</p>
+    {% endif %}
+
+    <h2 class="h5">История операций</h2>
+    {% if portfolio.transactions.all %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Операция</th>
+                    <th>Тикер</th>
+                    <th class="text-end">Количество</th>
+                    <th class="text-end">Цена</th>
+                    <th class="text-end">Сумма</th>
+                    <th class="text-end">Реализованный P&amp;L</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for transaction in portfolio.transactions.all %}
+                    <tr>
+                        <td>{{ transaction.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% if transaction.operation == "BUY" %}
+                                <span class="badge bg-success">Покупка</span>
+                            {% else %}
+                                <span class="badge bg-danger">Продажа</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.share.ticker }}</td>
+                        <td class="text-end">{{ transaction.quantity|floatformat:6 }}</td>
+                        <td class="text-end">{{ transaction.price|floatformat:2 }}</td>
+                        <td class="text-end">{{ transaction.total|floatformat:2 }}</td>
+                        <td class="text-end">{{ transaction.realized_pnl|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">Операций пока нет.</p>
+    {% endif %}
+
+    <p class="text-muted small mt-3">
+        Примечание: итоговые суммы не учитывают конвертацию между валютами
+        разных инструментов.
+    </p>
+{% endblock %}

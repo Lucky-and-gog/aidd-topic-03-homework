@@ -1,0 +1,25 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+<title>Создать портфель</title>
+{% endblock %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <h1 class="h3 mb-3">Новый портфель</h1>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    {{ field|as_crispy_field }}
+                {% endfor %}
+                <button class="w-100 btn btn-lg btn-primary mt-4" type="submit">
+                    Создать
+                </button>
+            </form>
+            <a href="{% url 'dashboard:portfolio_list' %}"
+               class="btn btn-link mt-2">Назад к портфелям</a>
+        </div>
+    </div>
+{% endblock %}

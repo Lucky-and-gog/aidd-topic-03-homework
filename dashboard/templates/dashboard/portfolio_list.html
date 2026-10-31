@@ -1,0 +1,60 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+<title>Мои портфели</title>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Мои портфели</h1>
+        <a href="{% url 'dashboard:portfolio_create' %}" class="btn btn-primary">
+            Создать портфель
+        </a>
+    </div>
+
+    {% if portfolios %}
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th scope="col">Название</th>
+                <th scope="col">Позиций</th>
+                <th scope="col">Текущая стоимость</th>
+                <th scope="col">Прибыль/убыток</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for portfolio in portfolios %}
+                <tr>
+                    <td>
+                        <a href="{% url 'dashboard:portfolio_detail' portfolio.pk %}">
+                            {{ portfolio.name }}
+                        </a>
+                    </td>
+                    <td>{{ portfolio.positions.count }}</td>
+                    <td>{{ portfolio.current_value|floatformat:2 }}</td>
+                    <td>
+                        {% if portfolio.total_pnl >= 0 %}
+                            <span class="text-success">
+                                +{{ portfolio.total_pnl|floatformat:2 }}
+                            </span>
+                        {% else %}
+                            <span class="text-danger">
+                                {{ portfolio.total_pnl|floatformat:2 }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'dashboard:portfolio_detail' portfolio.pk %}"
+                           class="btn btn-sm btn-secondary">Открыть</a>
+                        <a href="{% url 'dashboard:portfolio_delete' portfolio.pk %}"
+                           class="btn btn-sm btn-danger">Удалить</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Портфелей ещё нет. Создайте первый портфель.</p>
+    {% endif %}
+{% endblock %}
