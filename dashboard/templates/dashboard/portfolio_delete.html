@@ -1,0 +1,12 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Удаление портфеля</title>{% endblock %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <p>Вы уверены, что хотите удалить портфель <b>{{ portfolio.name }}</b>?</p>
+  <input type="submit" class="btn btn-danger" value="Удалить" />
+  <a href="{% url 'dashboard:portfolio_list' %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

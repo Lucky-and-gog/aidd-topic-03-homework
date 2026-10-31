@@ -1,0 +1,81 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Портфель {{ portfolio.name }}</title>{% endblock %}
+
+{% block content %}
+<h2>Портфель: {{ portfolio.name }}</h2>
+
+<p>
+  <a href="{% url 'dashboard:portfolio_buy' portfolio.id %}" class="btn btn-success">Купить</a>
+  <a href="{% url 'dashboard:portfolio_sell' portfolio.id %}" class="btn btn-warning">Продать</a>
+</p>
+
+<h4>Итоги</h4>
+<ul>
+  <li>Рыночная стоимость: {{ totals.market_value }}</li>
+  <li>Себестоимость: {{ totals.cost_basis }}</li>
+  <li>Нереализованная прибыль/убыток: {{ totals.unrealized_pnl }}</li>
+  <li>Реализованная прибыль/убыток: {{ totals.realized_pnl }}</li>
+  <li><b>Общая прибыль/убыток: {{ totals.total_pnl }}</b></li>
+</ul>
+
+<h4>Позиции</h4>
+{% if positions %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Тикер</th>
+      <th>Количество</th>
+      <th>Средняя цена</th>
+      <th>Текущая цена</th>
+      <th>Стоимость</th>
+      <th>PnL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pos in positions %}
+    <tr>
+      <td>{{ pos.share.ticker }}</td>
+      <td>{{ pos.quantity }}</td>
+      <td>{{ pos.average_price }}</td>
+      <td>{{ pos.share.last_price }}</td>
+      <td>{{ pos.market_value }}</td>
+      <td>{{ pos.unrealized_pnl }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Позиций нет.</p>
+{% endif %}
+
+<h4>История операций</h4>
+{% if transactions %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Дата</th>
+      <th>Операция</th>
+      <th>Тикер</th>
+      <th>Количество</th>
+      <th>Цена</th>
+      <th>PnL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in transactions %}
+    <tr>
+      <td>{{ t.created_at }}</td>
+      <td>{{ t.get_operation_display }}</td>
+      <td>{{ t.share.ticker }}</td>
+      <td>{{ t.quantity }}</td>
+      <td>{{ t.price }}</td>
+      <td>{{ t.realized_pnl }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Операций нет.</p>
+{% endif %}
+{% endblock %}

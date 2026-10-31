@@ -1,0 +1,16 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+{% block content %}
+<h2>{{ title }} — {{ portfolio.name }}</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+  {% endif %}
+  <button type="submit" class="btn btn-primary">Выполнить</button>
+  <a href="{% url 'dashboard:portfolio_detail' portfolio.id %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}
